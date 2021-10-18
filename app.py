@@ -126,17 +126,16 @@ def send_mail():
     return 'Mail sent'
 
 
-"""Заявка производителя"""
+"""Заявка производителя (6.1)"""
 
 
 @app.route("/producer_order", methods=['post', 'get'])
 def producer_order():
     user_id = request.json["_id"]
-    order_status = request.json["order_status"]
     order_data = {
-        "_id": user_id,
+        #"_id": user_id,
         "order_number": request.json["order_number"],
-        "order_status": ["Активная" or "Завершенная"],
+        "order_status": None,
         "waste_category": request.json["waste_category"],
         "waste_volume_weight": request.json["waste_volume_weight"],
         "waste_photo": request.json["waste_photo"],
@@ -147,13 +146,39 @@ def producer_order():
         "relevance_of_the_order": request.json["relevance_of_the_order"],
         "contact_person": request.json["contact_person"]
     }
-    if order_status == "Завершенная":
-        dbtravio.completed_orders.insert_one(order_data)
-        return jsonify("Заявка добавлена"), 200
-    else:
-        dbtravio.active_orders.insert_one(order_data)
-        return jsonify("Заявка добавлена"), 200
+    dbtravio.users.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": {"order_data": order_data}}
+    )
+    return jsonify("Yes"), 200
 
+
+"""Публикация заявки производителя (6.2)"""
+
+
+@app.route("/publication_producer_order", methods=['post', 'get'])
+def publication_producer_order():
+    user_id = request.json["_id"]
+    order_number = request.json["order_number"]
+    order_status = ["Опубликована"]
+    order_data = {
+        "order_number": order_number,
+        "order_status": order_status,
+        "waste_category": request.json["waste_category"],
+        "waste_volume_weight": request.json["waste_volume_weight"],
+        "waste_photo": request.json["waste_photo"],
+        "address": request.json["address"],
+        "transport": request.json["transport"],
+        "as_soon_as_possible": request.json["as_soon_as_possible"],
+        "period_of_execution": request.json["period_of_execution"],
+        "relevance_of_the_order": request.json["relevance_of_the_order"],
+        "contact_person": request.json["contact_person"]
+    }
+    dbtravio.users.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": {"order_data": order_data}}
+    )
+    return jsonify("Заявка опубликована"), 200
 
 
 """Смена роли производитель/переработчик"""
@@ -169,6 +194,14 @@ def change_activity():
              {"$set": {"field_of_activity": new_activity}}
              )
     return jsonify("Yes"), 200
+
+
+"""Удаление заявки производителем"""
+
+
+@app.route("/delete_order", methods=['post', 'get'])
+def delete_order():
+    pass
 
 
 if __name__ == '__main__':

@@ -146,10 +146,11 @@ def producer_order():
         "relevance_of_the_order": request.json["relevance_of_the_order"],
         "contact_person": request.json["contact_person"]
     }
-    dbtravio.users.update_one(
-        {"_id": ObjectId(user_id)},
-        {"$set": {"order_data": order_data}}
-    )
+    dbtravio.active_orders.insert_one(order_data)
+    # dbtravio.users.update_one(
+    #     {"_id": ObjectId(user_id)},
+    #     {"$set": {"order_data": order_data}}
+    # )
     return jsonify("Yes"), 200
 
 
@@ -160,7 +161,7 @@ def producer_order():
 def publication_producer_order():
     user_id = request.json["_id"]
     order_number = request.json["order_number"]
-    order_status = ["Опубликована"]
+    order_status = "Опубликована"
     order_data = {
         "order_number": order_number,
         "order_status": order_status,
@@ -181,6 +182,17 @@ def publication_producer_order():
     return jsonify("Заявка опубликована"), 200
 
 
+"""Удаление заявки производителем (6.3)"""
+
+
+@app.route("/delete_order", methods=['post', 'get'])
+def delete_order():
+    order_id = request.json["_id"]
+    for i in order_id:
+        dbtravio.active_orders.delete_one({"_id": ObjectId(order_id)})
+    return jsonify("Удалена")
+
+
 """Смена роли производитель/переработчик"""
 
 
@@ -196,12 +208,10 @@ def change_activity():
     return jsonify("Yes"), 200
 
 
-"""Удаление заявки производителем"""
-
-
-@app.route("/delete_order", methods=['post', 'get'])
-def delete_order():
-    pass
+# @app.route("/find_document", methods=['post', 'get'])
+# def find_document():
+#     results = users.find({'order_data.order_status': 'Опубликована'})
+#     return jsonify(results)
 
 
 if __name__ == '__main__':

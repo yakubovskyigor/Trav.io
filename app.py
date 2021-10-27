@@ -189,7 +189,7 @@ def publication_producer_order():
 def delete_order():
     order_id = request.json["_id"]
     for i in order_id:
-        dbtravio.active_orders.delete_one({"_id": ObjectId(order_id)})
+        dbtravio.active_orders.delete_one({"_id": ObjectId(i)})
     return jsonify("Удалена")
 
 

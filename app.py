@@ -3,9 +3,12 @@ import pymongo
 from flask_mail import Mail
 from bson.objectid import ObjectId
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token
+import datetime
 
 app = Flask(__name__)
 app.secret_key = "testing"
+app.config["JWT_SECRET_KEY"] = "this-is-secret-key"
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
 app.config['MAIL_USE_SSL'] = True
@@ -18,6 +21,7 @@ active_orders = dbtravio.active_orders
 completed_orders = dbtravio.completed_orders
 mail = Mail(app)
 CORS(app)
+jwt = JWTManager(app)
 
 
 @app.route("/", methods=['post', 'get'])
@@ -112,7 +116,10 @@ def login():
 
     check = users.find_one({"email": email, "password": password})
     if check:
-        return jsonify(message="Пользователь с таким именем зарегистрирован"), 200
+        access_token = create_access_token(identity=email)
+        return jsonify(message="Пользователь с таким именем зарегистрирован", access_token=access_token), 200
+    else:
+        return jsonify(message="Неверный логин или пароль"), 401
 
 
 @app.route("/send", methods=['post', 'get'])
@@ -151,7 +158,7 @@ def producer_order():
     #     {"_id": ObjectId(user_id)},
     #     {"$set": {"order_data": order_data}}
     # )
-    return jsonify("Yes"), 200
+    return jsonify("Yes", user_id), 200
 
 
 """Публикация заявки производителя (6.2)"""
@@ -190,6 +197,7 @@ def delete_order():
     order_id = request.json["_id"]
     for i in order_id:
         dbtravio.active_orders.delete_one({"_id": ObjectId(i)})
+        dbtravio.completed_orders.insert_one({"_id": ObjectId(i)})
     return jsonify("Удалена")
 
 

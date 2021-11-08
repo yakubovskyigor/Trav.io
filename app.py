@@ -1,19 +1,20 @@
 from flask import Flask, request, jsonify
 import pymongo
-from flask_mail import Mail
+from flask_mail import Mail, Message
 from bson.objectid import ObjectId
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token
+from threading import Thread
 import datetime
 
 app = Flask(__name__)
 app.secret_key = "testing"
 app.config["JWT_SECRET_KEY"] = "this-is-secret-key"
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 465
+app.config['MAIL_SERVER'] = 'localhost'
+app.config['MAIL_PORT'] = 1025
 app.config['MAIL_USE_SSL'] = True
-app.config['MAIL_USERNAME'] = "igorby8881@gmail.com"
-app.config['MAIL_PASSWORD'] = "i5526678"
+app.config['MAIL_USERNAME'] = "support@movie-bag.com"
+app.config['MAIL_PASSWORD'] = ""
 client = pymongo.MongoClient(host="localhost", port=27017)
 dbtravio = client.dbtravio
 users = dbtravio.users
@@ -79,6 +80,7 @@ def logged_in_one():
 @app.route('/logged_in_two', methods=["POST"])
 def logged_in_two():
     email = request.json["email"]
+    password = request.json["password"]
     organizational_legal_form = request.json["organizational_legal_form"]
     organization_name = request.json["organization_name"]
     field_of_activity = request.json["field_of_activity"]
@@ -94,7 +96,7 @@ def logged_in_two():
     if check:
         return jsonify(message="Пользователь с данным e-mail уже зарегистрирован")
     else:
-        user_info = dict(email=email, organizational_legal_form=organizational_legal_form,
+        user_info = dict(email=email, password=password, organizational_legal_form=organizational_legal_form,
                          organization_name=organization_name, field_of_activity=field_of_activity, unp=unp,
                          address=address, last_name=last_name, first_name=first_name, patronymic=patronymic,
                          position=position, phone_number=phone_number)
@@ -122,15 +124,19 @@ def login():
         return jsonify(message="Неверный логин или пароль"), 401
 
 
+# def send_async_email(app, msg):
+#     with app.app_context():
+#         try:
+#             mail.send(msg)
+#         except ConnectionRefusedError:
+#             raise jsonify("[MAIL SERVER] not working")
+
+
 @app.route("/send", methods=['post', 'get'])
 def send_mail():
-    msg = mail.send_message(
-        'Send Mail tutorial!',
-        sender='igorby8881@gmail.com',
-        recipients=['igorby@mail.ru'],
-        body="Congratulations you've succeeded!"
-    )
-    return 'Mail sent'
+    msg = Message(subject="Hi", sender='support@movie-bag.com', recipients="igorby@mail.ru", body="Mail send")
+    # Thread(target=send_async_email, args=(app, msg)).start()
+    mail.send(msg)
 
 
 """Заявка производителя (6.1)"""
@@ -195,9 +201,14 @@ def publication_producer_order():
 @app.route("/delete_order", methods=['post', 'get'])
 def delete_order():
     order_id = request.json["_id"]
+    check = active_orders.find_one({"_id": ObjectId(order_id)})
+    if check:
+        dbtravio.completed_orders.insert_one(check)
+    else:
+        return jsonify("No")
+    order_id = [order_id]
     for i in order_id:
         dbtravio.active_orders.delete_one({"_id": ObjectId(i)})
-        dbtravio.completed_orders.insert_one({"_id": ObjectId(i)})
     return jsonify("Удалена")
 
 

@@ -10,11 +10,12 @@ import datetime
 app = Flask(__name__)
 app.secret_key = "testing"
 app.config["JWT_SECRET_KEY"] = "this-is-secret-key"
-app.config['MAIL_SERVER'] = 'localhost'
-app.config['MAIL_PORT'] = 1025
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
 app.config['MAIL_USE_SSL'] = True
-app.config['MAIL_USERNAME'] = "support@movie-bag.com"
-app.config['MAIL_PASSWORD'] = ""
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USERNAME'] = "igorby8881@gmail.com"
+app.config['MAIL_PASSWORD'] = "i5526678"
 client = pymongo.MongoClient(host="localhost", port=27017)
 dbtravio = client.dbtravio
 users = dbtravio.users
@@ -101,7 +102,7 @@ def logged_in_two():
                          address=address, last_name=last_name, first_name=first_name, patronymic=patronymic,
                          position=position, phone_number=phone_number)
         users.insert_one(user_info)
-        return jsonify(message="Пользователь успешно добавлен"), 200
+        return jsonify(message="Пользователь успешно добавлен"), send_mail, 200
 
 
 """Авторизация"""
@@ -124,19 +125,34 @@ def login():
         return jsonify(message="Неверный логин или пароль"), 401
 
 
-# def send_async_email(app, msg):
-#     with app.app_context():
-#         try:
-#             mail.send(msg)
-#         except ConnectionRefusedError:
-#             raise jsonify("[MAIL SERVER] not working")
-
-
 @app.route("/send", methods=['post', 'get'])
 def send_mail():
-    msg = Message(subject="Hi", sender='support@movie-bag.com', recipients="igorby@mail.ru", body="Mail send")
-    # Thread(target=send_async_email, args=(app, msg)).start()
+    msg = Message(subject="Регистрация в TRAV.IO успешно осуществлена. Ознакомьтесь с регистрационной информацией.",
+                  sender='igorby8881@gmail.com', recipients=["a.anoshka82@gmail.com"])
+    msg.body = "Уважаемый пользователь! \n" \
+               "Благодарим Вас, за выбор системы http://TRAV.IO \n"\
+               "\n" \
+               "Вы прошли регистрацию со следующими данными:\n" \
+               "Наименование организации: ...\n" \
+               "Сфера деятельности: ...\n" \
+               "УНП: ...\n" \
+               "Юридический адрес: ...\n" \
+               "\n" \
+               "Данные контактного лица\n" \
+               "\n" \
+               "Ф.И.О. : ...\n" \
+               "Должность в организации: ...\n" \
+               "Контактный номер: ...\n" \
+               "\n" \
+               "Данные для входа в систему TRAV.IO:\n" \
+               "E-mail: ...\n" \
+               "Пароль: ...\n" \
+               "\n" \
+               "\n" \
+               "ЛОГО\n" \
+               "www.trav.io"
     mail.send(msg)
+    return "Sent"
 
 
 """Заявка производителя (6.1)"""

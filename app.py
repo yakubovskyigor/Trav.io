@@ -62,7 +62,7 @@ def test():
 @app.route('/logged_in_one', methods=["POST"])
 def logged_in_one():
     email = request.json["email"]
-    #password = request.json["password"]
+    # password = request.json["password"]
 
     # password_two = request.json["password_two"]
     check = users.find_one({"email": email})
@@ -102,7 +102,9 @@ def logged_in_two():
                          address=address, last_name=last_name, first_name=first_name, patronymic=patronymic,
                          position=position, phone_number=phone_number)
         users.insert_one(user_info)
-        return jsonify(message="Пользователь успешно добавлен"), send_mail, 200
+        return jsonify(message="Пользователь успешно добавлен"), send_mail(
+                       organization_name, field_of_activity, unp, address, last_name,
+                       first_name, patronymic, position, phone_number, email, password), 200
 
 
 """Авторизация"""
@@ -126,27 +128,28 @@ def login():
 
 
 @app.route("/send", methods=['post', 'get'])
-def send_mail():
+def send_mail(organization_name, field_of_activity, unp, address, last_name,
+              first_name, patronymic, position, phone_number, email, password):
     msg = Message(subject="Регистрация в TRAV.IO успешно осуществлена. Ознакомьтесь с регистрационной информацией.",
-                  sender='igorby8881@gmail.com', recipients=["a.anoshka82@gmail.com"])
+                  sender='igorby8881@gmail.com', recipients=["igorby@mail.ru"])
     msg.body = "Уважаемый пользователь! \n" \
                "Благодарим Вас, за выбор системы http://TRAV.IO \n"\
                "\n" \
                "Вы прошли регистрацию со следующими данными:\n" \
-               "Наименование организации: ...\n" \
-               "Сфера деятельности: ...\n" \
-               "УНП: ...\n" \
-               "Юридический адрес: ...\n" \
+               f"Наименование организации: {organization_name}\n "\
+               f"Сфера деятельности: {field_of_activity}\n" \
+               f"УНП: {unp}\n" \
+               f"Юридический адрес: {address}\n" \
                "\n" \
                "Данные контактного лица\n" \
                "\n" \
-               "Ф.И.О. : ...\n" \
-               "Должность в организации: ...\n" \
-               "Контактный номер: ...\n" \
+               f"Ф.И.О. : {last_name} {first_name} {patronymic}\n" \
+               f"Должность в организации: {position}\n" \
+               f"Контактный номер: {phone_number}\n" \
                "\n" \
                "Данные для входа в систему TRAV.IO:\n" \
-               "E-mail: ...\n" \
-               "Пароль: ...\n" \
+               f"E-mail: {email}\n" \
+               f"Пароль: {password}\n" \
                "\n" \
                "\n" \
                "ЛОГО\n" \

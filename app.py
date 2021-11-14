@@ -102,7 +102,7 @@ def logged_in_two():
                          address=address, last_name=last_name, first_name=first_name, patronymic=patronymic,
                          position=position, phone_number=phone_number)
         users.insert_one(user_info)
-        return jsonify(message="Пользователь успешно добавлен"), send_mail(
+        return send_mail(
                        organization_name, field_of_activity, unp, address, last_name,
                        first_name, patronymic, position, phone_number, email, password), 200
 
@@ -155,7 +155,7 @@ def send_mail(organization_name, field_of_activity, unp, address, last_name,
                "ЛОГО\n" \
                "www.trav.io"
     mail.send(msg)
-    return "Sent"
+    return jsonify(message="Пользователь успешно добавлен")
 
 
 """Заявка производителя (6.1)"""

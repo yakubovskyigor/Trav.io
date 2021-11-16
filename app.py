@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from pymongo import MongoClient
 import pymongo
 from flask_mail import Mail, Message
 from bson.objectid import ObjectId
@@ -16,8 +17,8 @@ app.config['MAIL_USE_SSL'] = True
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USERNAME'] = "igorby8881@gmail.com"
 app.config['MAIL_PASSWORD'] = "i5526678"
-client = pymongo.MongoClient(host="localhost", port=27017)
-dbtravio = client.dbtravio
+cluster = MongoClient("mongodb+srv://igorby8881:i5526678@cluster0.nbqer.mongodb.net/dbtravio?retryWrites=true&w=majority")
+dbtravio = cluster.dbtravio
 users = dbtravio.users
 active_orders = dbtravio.active_orders
 completed_orders = dbtravio.completed_orders

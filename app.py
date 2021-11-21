@@ -103,9 +103,10 @@ def logged_in_two():
                          address=address, last_name=last_name, first_name=first_name, patronymic=patronymic,
                          position=position, phone_number=phone_number)
         users.insert_one(user_info)
-        return send_mail(
-                       organization_name, field_of_activity, unp, address, last_name,
-                       first_name, patronymic, position, phone_number, email, password), 200
+        return jsonify("Пользователь успешно добавлен")
+        # send_mail(
+        #                organization_name, field_of_activity, unp, address, last_name,
+        #                first_name, patronymic, position, phone_number, email, password), 200
 
 
 """Авторизация"""

@@ -17,7 +17,7 @@ app.config['MAIL_USE_SSL'] = True
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USERNAME'] = "igorby8881@gmail.com"
 app.config['MAIL_PASSWORD'] = "i5526678"
-cluster = MongoClient("mongodb+srv://igorby8881:i5526678@cluster0.nbqer.mongodb.net/dbtravio?retryWrites=true&w=majority")
+cluster = MongoClient("mongodb+srv://igorby8881:i5526678@cluster0.cymiq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
 dbtravio = cluster.dbtravio
 users = dbtravio.users
 active_orders = dbtravio.active_orders

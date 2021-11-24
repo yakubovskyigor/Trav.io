@@ -69,7 +69,7 @@ def logged_in_one():
     check = users.find_one({"email": email})
     if check:
         return jsonify(message="Пользователь с данным e-mail уже зарегистрирован")
-    return email
+    return jsonify(message=f"{email}")
     #elif password != password_two:
     #     return jsonify(message="Пароли не совпадают")
     # else:
@@ -88,6 +88,7 @@ def logged_in_two():
     field_of_activity = request.json["field_of_activity"]
     unp = request.json["unp"]
     address = request.json["address"]
+    coordinates = request.json["coordinates"]
     last_name = request.json["last_name"]
     first_name = request.json["first_name"]
     patronymic = request.json["patronymic"]
@@ -100,7 +101,7 @@ def logged_in_two():
     else:
         user_info = dict(email=email, password=password, organizational_legal_form=organizational_legal_form,
                          organization_name=organization_name, field_of_activity=field_of_activity, unp=unp,
-                         address=address, last_name=last_name, first_name=first_name, patronymic=patronymic,
+                         address=address, coordinates=coordinates, last_name=last_name, first_name=first_name, patronymic=patronymic,
                          position=position, phone_number=phone_number)
         users.insert_one(user_info)
         return jsonify("Пользователь успешно добавлен")

@@ -125,7 +125,7 @@ def login():
     check = users.find_one({"email": email, "password": password})
     if check:
         access_token = create_access_token(identity=email)
-        return jsonify(message="Пользователь с таким именем зарегистрирован", access_token=access_token), 200
+        return jsonify(message="Пользователь с таким именем зарегистрирован", access_token=access_token, user=email), 200
     else:
         return jsonify(message="Неверный логин или пароль"), 401
 
@@ -234,7 +234,7 @@ def delete_order():
     return jsonify("Удалена")
 
 
-"""Смена роли производитель/переработчик"""
+"""Смена роли производитель/переработчик U.S. 2.2"""
 
 
 @app.route("/change_activity", methods=['post', 'get'])
@@ -253,6 +253,9 @@ def change_activity():
 # def find_document():
 #     results = users.find({'order_data.order_status': 'Опубликована'})
 #     return jsonify(results)
+
+
+
 
 
 if __name__ == '__main__':

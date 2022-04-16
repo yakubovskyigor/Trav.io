@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, json
+from pip._vendor import requests
 from pymongo import MongoClient
 import pymongo
 from flask_mail import Mail, Message
@@ -34,7 +35,14 @@ def index_page():
 
 @app.route("/news", methods=['post', 'get'])
 def news():
-    return ("News")
+    unp = request.json['unp']
+    response_API = requests.get(f'http://egr.gov.by/api/v2/egr/getBaseInfoByRegNum/{unp}')
+    # print(response_API)
+    data = response_API.text
+    parse_json = json.loads(data)
+    # info = parse_json[1]['vn']
+    for i in parse_json:
+        return jsonify(i['nsi00219']['vnsostk'])
 
 
 @app.route('/add', methods=['GET', 'POST'])
@@ -83,26 +91,32 @@ def logged_in_one():
 def logged_in_two():
     email = request.json["email"]
     password = request.json["password"]
-    organizational_legal_form = request.json["organizational_legal_form"]
-    organization_name = request.json["organization_name"]
     field_of_activity = request.json["field_of_activity"]
+    waste_category = request.json["waste_category"]
     unp = request.json["unp"]
+
+    response_API = requests.get(f'http://egr.gov.by/api/v2/egr/getBaseInfoByRegNum/{unp}')
+    data = response_API.text
+    parse_json = json.loads(data)
+    # info = parse_json[1]['vn']
+    for i in parse_json:
+        organization_name = jsonify(i['vn'])
+    return organization_name
+
+    status_organization_name = request.json["status_organization_name"]
+    activity_code = request.json["activity_code"]
     address = request.json["address"]
-    coordinates = request.json["coordinates"]
-    last_name = request.json["last_name"]
-    first_name = request.json["first_name"]
-    patronymic = request.json["patronymic"]
-    position = request.json["position"]
+    post_address = request.json["post_address"]
     phone_number = request.json["phone_number"]
 
     check = users.find_one({"email": email})
     if check:
         return jsonify(message="Пользователь с данным e-mail уже зарегистрирован")
     else:
-        user_info = dict(email=email, password=password, organizational_legal_form=organizational_legal_form,
-                         organization_name=organization_name, field_of_activity=field_of_activity, unp=unp,
-                         address=address, coordinates=coordinates, last_name=last_name, first_name=first_name, patronymic=patronymic,
-                         position=position, phone_number=phone_number)
+        user_info = dict(email=email, password=password, field_of_activity=field_of_activity,
+                         waste_category=waste_category, unp=unp, organization_name=organization_name,
+                         status_organization_name=status_organization_name, activity_code=activity_code,
+                         address=address, post_address=post_address, phone_number=phone_number)
         users.insert_one(user_info)
         return jsonify("Пользователь успешно добавлен")
         # send_mail(

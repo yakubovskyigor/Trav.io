@@ -5,7 +5,7 @@ import pymongo
 from flask_mail import Mail, Message
 from bson.objectid import ObjectId
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager, jwt_required, create_access_token
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token, create_refresh_token
 from threading import Thread
 import datetime
 
@@ -70,18 +70,32 @@ def test():
 
 @app.route('/logged_in_one', methods=["POST"])
 def logged_in_one():
+    # email = request.json["email"]
+    # # password = request.json["password"]
+    #
+    # # password_two = request.json["password_two"]
+    # check = users.find_one({"email": email})
+    # if check:
+    #     return jsonify(message="Пользователь с данным e-mail уже зарегистрирован")
+    # return jsonify(message=f"{email}")
+    # #elif password != password_two:
+    # #     return jsonify(message="Пароли не совпадают")
+    # # else:
+    # #     return jsonify(message="Давайте познакомимся")
     email = request.json["email"]
-    # password = request.json["password"]
-
-    # password_two = request.json["password_two"]
     check = users.find_one({"email": email})
     if check:
-        return jsonify(message="Пользователь с данным e-mail уже зарегистрирован")
-    return jsonify(message=f"{email}")
-    #elif password != password_two:
-    #     return jsonify(message="Пароли не совпадают")
-    # else:
-    #     return jsonify(message="Давайте познакомимся")
+        return jsonify(message="User Exist")
+    else:
+        email = request.json["email"]
+        password = request.json["password"]
+
+        user_info = dict(email=email, password=password)
+        users.insert_one(user_info)
+        # access_token = create_access_token(identity=email)
+        refresh_token = create_refresh_token(identity=email)
+        return jsonify(message="User added successfully", refresh_token=refresh_token, user=email), 200
+
 
 
 """Второй шаг регистрации"""

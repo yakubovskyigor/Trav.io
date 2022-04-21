@@ -97,7 +97,6 @@ def logged_in_one():
         return jsonify(message="User added successfully", refresh_token=refresh_token, user=email), 200
 
 
-
 """Второй шаг регистрации"""
 
 
@@ -105,32 +104,35 @@ def logged_in_one():
 def logged_in_two():
     email = request.json["email"]
     password = request.json["password"]
-    field_of_activity = request.json["field_of_activity"]
-    waste_category = request.json["waste_category"]
     unp = request.json["unp"]
-
-    response_API = requests.get(f'http://egr.gov.by/api/v2/egr/getBaseInfoByRegNum/{unp}')
-    data = response_API.text
-    parse_json = json.loads(data)
-    # info = parse_json[1]['vn']
-    for i in parse_json:
-        organization_name = jsonify(i['vn'])
-    return organization_name
-
+    organization_name = request.json["organization_name"]
     status_organization_name = request.json["status_organization_name"]
+    field_of_activity = request.json["field_of_activity"]
     activity_code = request.json["activity_code"]
     address = request.json["address"]
     post_address = request.json["post_address"]
     phone_number = request.json["phone_number"]
+    electronic_address = request.json["electronic_address"]
+    #personal data
+    last_name = request.json["last_name"]
+    first_name = request.json["first_name"]
+    patronymic = request.json["patronymic"]
+    position = request.json["position"]
+    electronic_address_two = request.json["electronic_address_two"]
+    note = request.json["note"]
 
     check = users.find_one({"email": email})
     if check:
         return jsonify(message="Пользователь с данным e-mail уже зарегистрирован")
     else:
-        user_info = dict(email=email, password=password, field_of_activity=field_of_activity,
-                         waste_category=waste_category, unp=unp, organization_name=organization_name,
-                         status_organization_name=status_organization_name, activity_code=activity_code,
-                         address=address, post_address=post_address, phone_number=phone_number)
+        user_info = dict(email=email, password=password, unp=unp,
+                         organization_name=organization_name,
+                         status_organization_name=status_organization_name, field_of_activity=field_of_activity,
+                         activity_code=activity_code, address=address, post_address=post_address,
+                         phone_number=phone_number, electronic_address=electronic_address,
+                         last_name=last_name, first_name=first_name, patronymic=patronymic,
+                         position=position, electronic_address_two=electronic_address_two,
+                         note=note)
         users.insert_one(user_info)
         return jsonify("Пользователь успешно добавлен")
         # send_mail(

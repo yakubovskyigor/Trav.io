@@ -93,8 +93,7 @@ def logged_in_one():
         user_info = dict(email=email, password=password)
         users.insert_one(user_info)
         # access_token = create_access_token(identity=email)
-        refresh_token = create_refresh_token(identity=email)
-        return jsonify(message="User added successfully", refresh_token=refresh_token, user=email), 200
+        return jsonify(message="User added successfully"), 200
 
 
 """Второй шаг регистрации"""
@@ -134,7 +133,8 @@ def logged_in_two():
                          position=position, electronic_address_two=electronic_address_two,
                          note=note)
         users.insert_one(user_info)
-        return jsonify("Пользователь успешно добавлен")
+        refresh_token = create_refresh_token(identity=email)
+        return jsonify(message="Пользователь успешно добавлен", refresh_token=refresh_token, user=email)
         # send_mail(
         #                organization_name, field_of_activity, unp, address, last_name,
         #                first_name, patronymic, position, phone_number, email, password), 200
